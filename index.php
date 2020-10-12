@@ -18,6 +18,10 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 <style>
     table, td, th {width: 33%;}
     h1{text-align:center;}
+    #error{
+        text-align: center;
+        color: red;
+    }
     table{margin-left:auto;
         margin-right:auto;}
     form {
@@ -31,7 +35,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 </head>
 
 <body>
-<div id="form">
+    
 <h1>Data Form</h1>
 
     <?php if(isset($_SESSION['error']))
@@ -40,64 +44,59 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             unset($_SESSION['error']);
         }
         ?>
-
     <script type="text/javascript">
-        function required(inputtx)
-        {
-            if (inputtx.value.length == 0)
-            {
-                alert("message");
-                return false;
-            }
-            return true;
-        }
         function f() {
+
             event.preventDefault()
-            var name=document.getElementById('name').value;
-            var city=document.getElementById('city').value;
-            var occupation=document.getElementById('occupation').value;
-            console.log(name, city, occupation);
-            request = $.ajax({
-                url: "http://localhost/natasha/handle.php",
-                type: "post",
-                data: {
-                    'name' :name,
-                    'city' :city,
-                    'occupation':occupation,
+            var name = document.getElementById('name').value;
+            var city = document.getElementById('city').value;
+            var occupation = document.getElementById('occupation').value;
+            if (name.length < 1 || city.length < 1 || occupation.length < 1) {
+                $('#error').show();
+            } else {
+                $('#error').hide();
+                console.log(name, city, occupation);
+                request = $.ajax({
+                    url: "http://localhost/natasha/handle.php",
+                    type: "post",
+                    data: {
+                        'name': name,
+                        'city': city,
+                        'occupation': occupation,
 
-                },
-                datatype: 'JSON',
+                    },
+                    datatype: 'JSON',
 
-            });
-            request.done(function (response, textStatus, jqXHR){
-                console.log('It worked');
-                $('#result').empty()
-                $('#result').append('<h1>Result data</h1><table id="res" class="table-striped table-bordered"><thead><tr><th>Name</th> <th>City</th> <th>Occupation</th></tr></thead><tbody>');
-                var str= ''
-                for(var i=0; i<response.length; i++)
-                {
-                    str += '<tr><td>'+response[i].name+'</td><td>'+response[i].city+'</td><td>'+response[i].occupation+'</td></tr>';
-                }
-                $('#res').append(str+'</tbody></table>');
-                $("#done").get(0).reset();
-            });
-            request.fail(function (jqXHR, textStatus, errorThrown){
-                console.log(
-                    "The following error occurred: "+
-                    textStatus, errorThrown
-                );
-            });
+                });
+                request.done(function (response, textStatus, jqXHR) {
+                    console.log('It worked');
+                    $('#result').empty()
+                    $('#result').append('<h1>Result data</h1><table id="res" class="table-striped table-bordered"><thead><tr><th>Name</th> <th>City</th> <th>Occupation</th></tr></thead><tbody>');
+                    var str = ''//
+                    for (var i = 0; i < response.length; i++) {
+                        str += '<tr><td>' + response[i].name + '</td><td>' + response[i].city + '</td><td>' + response[i].occupation + '</td></tr>';
+                    }
+                    $('#res').append(str + '</tbody></table>');
+                    $("#done").get(0).reset();
+                });
+                request.fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(
+                        "The following error occurred: " +
+                        textStatus, errorThrown
+                    );
+                });
             }
+        }
     </script>
-
+<div id="error" style="display: none;">
+    All fields are required.
+</div>
     <form method="post" id="done" >
     <label for="name" class=".control-label">Name: </label><input type="text" name="name" id="name" placeholder='Name' class="form-control" required><br>
     <label for="city" class=".control-label">City: </label><input type="text" name="city" id="city" placeholder="City" class="form-control" required><br>
     <label for="occupation" class=".control-label">Occupation: </label><input type="text" name="occupation" id="occupation" placeholder="Occupation" class="form-control" required><br>
      <input type="submit" value="submit" name="submit" class="btn btn-default"  onclick="return f();">
 </form>
-
-</div>
 <hr>
 <div id="result">
 </div>
